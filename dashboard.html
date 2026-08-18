@@ -38,32 +38,55 @@ header p{
   padding:18px;
 }
 
+.section-title{
+  margin:20px 0 12px;
+}
+
+.vehicle-list{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+}
+
 .vehicle-card{
   background:white;
-  padding:20px;
+  padding:18px;
   border-radius:14px;
-  margin-bottom:20px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
 }
 
+.vehicle-card.selected{
+  border:2px solid #0b3d91;
+}
+
 .vehicle-number{
-  font-size:23px;
+  font-size:21px;
   font-weight:bold;
   color:#0b3d91;
 }
 
-.vehicle-info{
+.info{
   line-height:1.8;
+  margin-top:8px;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:15px;
   margin-top:10px;
 }
 
-.status{
-  margin-top:12px;
-  padding:12px;
-  background:#e8f5e9;
-  color:#2e7d32;
-  border-radius:8px;
-  font-weight:bold;
+.add{
+  background:#2e7d32;
+}
+
+.selected-button{
+  background:#555;
 }
 
 .grid{
@@ -74,18 +97,15 @@ header p{
 
 .menu{
   background:white;
-  border:0;
-  border-radius:14px;
-  padding:20px 10px;
-  min-height:115px;
+  color:#222;
+  min-height:110px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
-  cursor:pointer;
 }
 
 .icon{
   display:block;
   font-size:30px;
-  margin-bottom:8px;
+  margin-bottom:7px;
 }
 
 .title{
@@ -93,26 +113,32 @@ header p{
 }
 
 .subtitle{
-  font-size:12px;
   color:#666;
+  font-size:12px;
   margin-top:5px;
-}
-
-.section-title{
-  margin:22px 0 12px;
-}
-
-.add{
-  background:#0b3d91;
-  color:white;
 }
 
 .empty{
   background:white;
   padding:20px;
-  border-radius:14px;
   text-align:center;
-  margin-bottom:20px;
+  border-radius:14px;
+}
+
+.status{
+  margin-top:10px;
+  padding:10px;
+  background:#e8f5e9;
+  color:#2e7d32;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+footer{
+  text-align:center;
+  color:#777;
+  padding:25px;
+  font-size:13px;
 }
 </style>
 </head>
@@ -126,19 +152,18 @@ header p{
 
 <div class="container">
 
-<div id="vehicleArea"></div>
+<h2 class="section-title">🚘 My Vehicles</h2>
 
-<h2 class="section-title">
-Vehicle Management
-</h2>
+<div id="vehicleList" class="vehicle-list"></div>
+
+<button class="add" onclick="goAddVehicle()">
+➕ Add New Vehicle
+</button>
+
+
+<h2 class="section-title">Vehicle Management</h2>
 
 <div class="grid">
-
-<button class="menu" onclick="openPage('add-vehicle.html')">
-<span class="icon">🚘</span>
-<div class="title">Add Vehicle</div>
-<div class="subtitle">Register vehicle</div>
-</button>
 
 <button class="menu" onclick="openPage('documents.html')">
 <span class="icon">📄</span>
@@ -164,17 +189,10 @@ Vehicle Management
 <div class="subtitle">Cases & timeline</div>
 </button>
 
-<button class="menu" onclick="support()">
-<span class="icon">📞</span>
-<div class="title">Help & Support</div>
-<div class="subtitle">Get assistance</div>
-</button>
-
 </div>
 
-<h2 class="section-title">
-Quick Actions
-</h2>
+
+<h2 class="section-title">Quick Actions</h2>
 
 <div class="grid">
 
@@ -194,89 +212,172 @@ Quick Actions
 
 </div>
 
+<footer>
+Vehicle Raksha<br>
+Vehicle Safety & Management System
+</footer>
+
+
 <script>
 
+function getVehicles(){
+
+return JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+}
+
+
+function getSelected(){
+
+return localStorage.getItem(
+"vehicleRakshaSelected"
+);
+
+}
+
+
+function selectVehicle(id){
+
+localStorage.setItem(
+"vehicleRakshaSelected",
+id
+);
+
+loadVehicles();
+
+}
+
+
+function loadVehicles(){
+
+const vehicles=getVehicles();
+
+const selected=getSelected();
+
+const list=
+document.getElementById("vehicleList");
+
+if(vehicles.length===0){
+
+list.innerHTML=`
+
+<div class="empty">
+
+<h3>🚘 No Vehicle Added</h3>
+
+<p>
+Add your first vehicle to start Vehicle Raksha.
+</p>
+
+</div>
+
+`;
+
+return;
+
+}
+
+list.innerHTML="";
+
+vehicles.forEach(vehicle=>{
+
+const isSelected=
+String(vehicle.id)===String(selected);
+
+const card=
+document.createElement("div");
+
+card.className=
+"vehicle-card"+
+(isSelected ? " selected" : "");
+
+card.innerHTML=`
+
+<div class="vehicle-number">
+${vehicle.vehicleNumber}
+</div>
+
+<div class="info">
+
+<strong>Owner:</strong>
+${vehicle.owner}
+
+<br>
+
+<strong>Vehicle:</strong>
+${vehicle.make} ${vehicle.model}
+
+<br>
+
+<strong>Fuel:</strong>
+${vehicle.fuel || "Not specified"}
+
+<br>
+
+<strong>Finance:</strong>
+${vehicle.finance || "No finance company"}
+
+<br>
+
+<strong>EMI:</strong>
+${vehicle.emiStatus}
+
+</div>
+
+${
+isSelected
+?
+'<div class="status">✓ Selected Vehicle</div>'
+:
+''
+}
+
+<button
+class="${isSelected ? 'selected-button' : ''}"
+onclick="selectVehicle(${vehicle.id})">
+
+${isSelected ? '✓ Selected' : 'Select Vehicle'}
+
+</button>
+
+`;
+
+list.appendChild(card);
+
+});
+
+}
+
+
+function goAddVehicle(){
+
+window.location.href="add-vehicle.html";
+
+}
+
+
 function openPage(page){
-  window.location.href=page;
+
+const vehicles=getVehicles();
+
+if(vehicles.length===0){
+
+alert(
+"Please add a vehicle first."
+);
+
+return;
+
 }
 
-function support(){
-  alert(
-    "Vehicle Raksha Support\n\nSupport module will be connected in the next version."
-  );
+window.location.href=page;
+
 }
 
-function loadVehicle(){
 
-  const saved=
-    localStorage.getItem("vehicleRakshaVehicle");
-
-  const area=
-    document.getElementById("vehicleArea");
-
-  if(!saved){
-
-    area.innerHTML=`
-      <div class="empty">
-        <h3>🚘 No Vehicle Added</h3>
-        <p>Add your vehicle to start managing documents, EMI and cases.</p>
-        <button class="menu add"
-          onclick="openPage('add-vehicle.html')">
-          Add Your Vehicle
-        </button>
-      </div>
-    `;
-
-    return;
-  }
-
-  const vehicle=
-    JSON.parse(saved);
-
-  area.innerHTML=`
-
-    <div class="vehicle-card">
-
-      <div class="vehicle-number">
-        ${vehicle.vehicleNumber}
-      </div>
-
-      <div class="vehicle-info">
-
-        <strong>Owner:</strong>
-        ${vehicle.owner}
-
-        <br>
-
-        <strong>Vehicle:</strong>
-        ${vehicle.make} ${vehicle.model}
-
-        <br>
-
-        <strong>Fuel:</strong>
-        ${vehicle.fuel || "Not specified"}
-
-        <br>
-
-        <strong>Finance:</strong>
-        ${vehicle.finance || "No finance company"}
-
-        <br>
-
-        <strong>EMI Status:</strong>
-        ${vehicle.emiStatus}
-
-      </div>
-
-      <div class="status">
-        🟢 Vehicle Active
-      </div>
-
-    </div>
-  `;
-}
-
-loadVehicle();
+loadVehicles();
 
 </script>
 
