@@ -203,11 +203,257 @@ function checkExpiry(type,dateId,statusId){
 }
 
 </script>
+<script>
 
-</body>
-</html>
-<button class="menu" onclick="openPage('document-details.html')">
-<span class="icon">📅</span>
-<div class="title">Expiry & Reminders</div>
-<div class="subtitle">Document validity</div>
-</button>
+const selectedId =
+  localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles =
+  JSON.parse(
+    localStorage.getItem("vehicleRakshaVehicles") || "[]"
+  );
+
+const vehicle =
+  vehicles.find(
+    v => String(v.id) === String(selectedId)
+  );
+
+
+function storageKey(){
+
+  return "vehicleDetails_" + vehicle.id;
+
+}
+
+
+function saveDetails(){
+
+  if(!vehicle){
+
+    alert("Please select a vehicle first.");
+
+    return;
+
+  }
+
+
+  const data = {
+
+    rcNumber:
+      document.getElementById("rcNumber").value.trim(),
+
+    rcExpiry:
+      document.getElementById("rcExpiry").value,
+
+    insuranceNumber:
+      document.getElementById("insuranceNumber").value.trim(),
+
+    insuranceExpiry:
+      document.getElementById("insuranceExpiry").value,
+
+    pucNumber:
+      document.getElementById("pucNumber").value.trim(),
+
+    pucExpiry:
+      document.getElementById("pucExpiry").value
+
+  };
+
+
+  localStorage.setItem(
+    storageKey(),
+    JSON.stringify(data)
+  );
+
+
+  alert("✓ Document details saved successfully.");
+
+  checkExpiry(
+    "RC",
+    "rcExpiry",
+    "rcStatus"
+  );
+
+  checkExpiry(
+    "Insurance",
+    "insuranceExpiry",
+    "insuranceStatus"
+  );
+
+  checkExpiry(
+    "PUC",
+    "pucExpiry",
+    "pucStatus"
+  );
+
+}
+
+
+function checkExpiry(type,dateId,statusId){
+
+  const dateValue =
+    document.getElementById(dateId).value;
+
+  const status =
+    document.getElementById(statusId);
+
+
+  if(!dateValue){
+
+    status.className="status warning";
+
+    status.innerHTML=
+      "⚠️ Please select an expiry date.";
+
+    return;
+
+  }
+
+
+  const today=new Date();
+
+  today.setHours(0,0,0,0);
+
+
+  const expiry=new Date(dateValue);
+
+  expiry.setHours(0,0,0,0);
+
+
+  const difference =
+    expiry - today;
+
+
+  const days =
+    Math.ceil(
+      difference /
+      (1000*60*60*24)
+    );
+
+
+  if(days < 0){
+
+    status.className=
+      "status expired";
+
+    status.innerHTML=
+      "🔴 "+type+" EXPIRED";
+
+  }
+
+  else if(days <= 7){
+
+    status.className=
+      "status expired";
+
+    status.innerHTML=
+      "🔴 "+type+
+      " expires in "+
+      days+
+      " day(s).";
+
+  }
+
+  else if(days <= 30){
+
+    status.className=
+      "status warning";
+
+    status.innerHTML=
+      "🟠 "+type+
+      " expires in "+
+      days+
+      " day(s).";
+
+  }
+
+  else{
+
+    status.className=
+      "status valid";
+
+    status.innerHTML=
+      "🟢 "+type+
+      " is valid for "+
+      days+
+      " more day(s).";
+
+  }
+
+}
+
+
+function loadDetails(){
+
+  if(!vehicle){
+
+    return;
+
+  }
+
+
+  const data =
+    JSON.parse(
+      localStorage.getItem(
+        storageKey()
+      ) || "{}"
+    );
+
+
+  document.getElementById("rcNumber").value =
+    data.rcNumber || "";
+
+  document.getElementById("rcExpiry").value =
+    data.rcExpiry || "";
+
+  document.getElementById("insuranceNumber").value =
+    data.insuranceNumber || "";
+
+  document.getElementById("insuranceExpiry").value =
+    data.insuranceExpiry || "";
+
+  document.getElementById("pucNumber").value =
+    data.pucNumber || "";
+
+  document.getElementById("pucExpiry").value =
+    data.pucExpiry || "";
+
+
+  if(data.rcExpiry){
+
+    checkExpiry(
+      "RC",
+      "rcExpiry",
+      "rcStatus"
+    );
+
+  }
+
+
+  if(data.insuranceExpiry){
+
+    checkExpiry(
+      "Insurance",
+      "insuranceExpiry",
+      "insuranceStatus"
+    );
+
+  }
+
+
+  if(data.pucExpiry){
+
+    checkExpiry(
+      "PUC",
+      "pucExpiry",
+      "pucStatus"
+    );
+
+  }
+
+}
+
+
+loadDetails();
+
+</script>
