@@ -1,0 +1,151 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vehicle Raksha</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      background: #f4f6f8;
+      color: #222;
+    }
+
+    .header {
+      background: #0b3d91;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .header h1 {
+      font-size: 28px;
+    }
+
+    .header p {
+      margin-top: 6px;
+      font-size: 14px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      margin-bottom: 15px;
+      border-radius: 12px;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+
+    .card h2 {
+      margin-bottom: 10px;
+      font-size: 20px;
+    }
+
+    .card p {
+      color: #666;
+      margin-bottom: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 8px;
+      background: #0b3d91;
+      color: white;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #082f70;
+    }
+
+    .status {
+      color: green;
+      font-weight: bold;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 20px;
+      color: #777;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="header">
+    <h1>🚗 Vehicle Raksha</h1>
+    <p>Vehicle Safety & Management System</p>
+  </div>
+
+  <div class="container">
+
+    <div class="card">
+      <h2>Vehicle Dashboard</h2>
+      <p>Manage your vehicle information, documents and cases.</p>
+      <p class="status">● System Active</p>
+    </div>
+
+    <div class="card">
+      <h2>🚘 Vehicle Details</h2>
+      <p>Add and manage your vehicle information.</p>
+      <button onclick="showMessage('Vehicle Details')">
+        Add Vehicle
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>📄 Documents</h2>
+      <p>RC, Insurance, PUC and other vehicle documents.</p>
+      <button onclick="showMessage('Documents')">
+        Manage Documents
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>💰 EMI & Settlement</h2>
+      <p>Calculate EMI, outstanding amount and settlement.</p>
+      <button onclick="showMessage('EMI & Settlement')">
+        Open Calculator
+      </button>
+    </div>
+
+    <div class="card">
+      <h2>🛡️ Vehicle Case</h2>
+      <p>Track vehicle-related cases and their status.</p>
+      <button onclick="showMessage('Vehicle Case')">
+        View Case
+      </button>
+    </div>
+
+  </div>
+
+  <div class="footer">
+    © 2026 Vehicle Raksha
+  </div>
+
+  <script>
+    function showMessage(section) {
+      alert(section + " module will open here.");
+    }
+  </script>
+
+</body>
+</html>
