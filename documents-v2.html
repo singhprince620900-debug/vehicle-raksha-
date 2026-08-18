@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Documents</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.vehicle{
+  background:#e3f2fd;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+
+input[type="file"]{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  margin-top:12px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+}
+
+.back{
+  background:#555;
+}
+
+.preview{
+  width:100%;
+  max-height:300px;
+  object-fit:contain;
+  margin-top:15px;
+  border:1px solid #ddd;
+  border-radius:8px;
+}
+
+.status{
+  margin-top:12px;
+  padding:10px;
+  border-radius:8px;
+  font-weight:bold;
+  background:#e8f5e9;
+  color:#2e7d32;
+}
+
+.note{
+  background:#fff3e0;
+  padding:12px;
+  border-radius:8px;
+  margin-bottom:18px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>📄 Vehicle Raksha</h1>
+<p>RC • Insurance • PUC</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="goDashboard()">
+← Dashboard
+</button>
+
+<div id="vehicleBox"></div>
+
+<div class="note">
+📌 Upload JPG, PNG, WEBP or PDF. Maximum size: 10 MB.
+</div>
+
+
+<!-- RC -->
+
+<div class="card">
+
+<h2>🚘 RC Document</h2>
+
+<input
+type="file"
+id="rcFile"
+accept="image/*,application/pdf"
+capture="environment"
+onchange="uploadDocument('RC','rcFile','rcPreview','rcStatus')">
+
+<div id="rcStatus"></div>
+
+<div id="rcPreview"></div>
+
+</div>
+
+
+<!-- Insurance -->
+
+<div class="card">
+
+<h2>🛡️ Insurance</h2>
+
+<input
+type="file"
+id="insuranceFile"
+accept="image/*,application/pdf"
+capture="environment"
+onchange="uploadDocument('Insurance','insuranceFile','insurancePreview','insuranceStatus')">
+
+<div id="insuranceStatus"></div>
+
+<div id="insurancePreview"></div>
+
+</div>
+
+
+<!-- PUC -->
+
+<div class="card">
+
+<h2>🌱 PUC</h2>
+
+<input
+type="file"
+id="pucFile"
+accept="image/*,application/pdf"
+capture="environment"
+onchange="uploadDocument('PUC','pucFile','pucPreview','pucStatus')">
+
+<div id="pucStatus"></div>
+
+<div id="pucPreview"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const selectedId =
+localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles =
+JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+const vehicle =
+vehicles.find(
+v => String(v.id) === String(selectedId)
+);
+
+
+function goDashboard(){
+
+window.location.href="dashboard.html";
+
+}
+
+
+if(!vehicle){
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h3>⚠️ No Vehicle Selected</h3>
+
+<p>
+Please select a vehicle from Dashboard first.
+</p>
+
+</div>
+
+`;
+
+}else{
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h2>🚘 ${vehicle.vehicleNumber}</h2>
+
+<p>
+${vehicle.make} ${vehicle.model}
+</p>
+
+<strong>Owner:</strong>
+${vehicle.owner}
+
+</div>
+
+`;
+
+loadDocuments();
+
+}
+
+
+function storageKey(){
+
+return "vehicleDocuments_" + vehicle.id;
+
+}
+
+
+function uploadDocument(
+type,
+inputId,
+previewId,
+statusId
+){
+
+if(!vehicle){
+
+alert("Please select a vehicle first.");
+return;
+
+}
+
+const input =
+document.getElementById(inputId);
+
+const file =
+input.files[0];
+
+if(!file){
+return;
+}
+
+
+const maxSize =
+10 * 1024 * 1024;
+
+
+if(file.size > maxSize){
+
+alert("File size must be below 10 MB.");
+
+input.value="";
+
+return;
+
+}
+
+
+const allowed=[
+
+"image/jpeg",
+"image/png",
+"image/webp",
+"application/pdf"
+
+];
+
+
+if(!allowed.includes(file.type)){
+
+alert(
+"Only JPG, PNG, WEBP or PDF files are allowed."
+);
+
+input.value="";
+
+return;
+
+}
+
+
+/*
+Files cannot reliably be stored permanently
+inside localStorage as File objects.
+We store document information here.
+*/
+
+const data =
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+
+data[type]={
+
+name:file.name,
+type:file.type,
+size:file.size,
+uploadedAt:new Date().toISOString()
+
+};
+
+
+localStorage.setItem(
+storageKey(),
+JSON.stringify(data)
+);
+
+
+showPreview(
+file,
+previewId
+);
+
+
+const status =
+document.getElementById(statusId);
+
+status.className="status";
+
+status.innerHTML=
+"✓ "+type+" uploaded successfully";
+
+
+}
+
+
+function showPreview(
+file,
+previewId
+){
+
+const preview =
+document.getElementById(previewId);
+
+preview.innerHTML="";
+
+
+if(file.type.startsWith("image/")){
+
+const img =
+document.createElement("img");
+
+img.className="preview";
+
+img.src =
+URL.createObjectURL(file);
+
+preview.appendChild(img);
+
+}else{
+
+preview.innerHTML=`
+
+<div class="status">
+
+📄 PDF selected:
+<br>
+${file.name}
+
+</div>
+
+`;
+
+}
+
+}
+
+
+function loadDocuments(){
+
+const data =
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+
+["RC","Insurance","PUC"].forEach(type=>{
+
+if(!data[type]){
+return;
+}
+
+const map={
+
+RC:[
+"rcFile",
+"rcPreview",
+"rcStatus"
+],
+
+Insurance:[
+"insuranceFile",
+"insurancePreview",
+"insuranceStatus"
+],
+
+PUC:[
+"pucFile",
+"pucPreview",
+"pucStatus"
+]
+
+};
+
+
+const ids=map[type];
+
+document.getElementById(
+ids[2]
+).className="status";
+
+document.getElementById(
+ids[2]
+).innerHTML=
+"✓ "+type+" document saved";
+
+document.getElementById(
+ids[1]
+).innerHTML=`
+
+<div class="status">
+
+📄 ${data[type].name}
+
+<br>
+
+Uploaded:
+${new Date(
+data[type].uploadedAt
+).toLocaleString()}
+
+</div>
+
+`;
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
