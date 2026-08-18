@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vehicle Raksha - Documents</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.vehicle{
+  background:white;
+  padding:16px;
+  border-radius:12px;
+  margin-bottom:18px;
+  box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+input[type="file"]{
+  width:100%;
+  padding:12px;
+  margin:10px 0;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  margin-top:8px;
+}
+
+.back{
+  background:#555;
+  margin-bottom:18px;
+}
+
+.delete{
+  background:#c62828;
+}
+
+.preview{
+  width:100%;
+  max-height:280px;
+  object-fit:contain;
+  margin-top:12px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+.pdf{
+  padding:14px;
+  background:#eee;
+  border-radius:8px;
+  margin-top:12px;
+  word-break:break-word;
+}
+
+.success{
+  color:#2e7d32;
+  font-weight:bold;
+  margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>📄 Vehicle Raksha</h1>
+<p>Vehicle Documents</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="goBack()">
+← Dashboard
+</button>
+
+<div id="vehicleInfo"></div>
+
+<div id="documentsArea"></div>
+
+</div>
+
+
+<script>
+
+const selectedId=
+localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles=
+JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+const vehicle=
+vehicles.find(
+v => String(v.id) === String(selectedId)
+);
+
+
+function goBack(){
+
+window.location.href="dashboard.html";
+
+}
+
+
+if(!vehicle){
+
+document.getElementById("vehicleInfo").innerHTML=`
+
+<div class="vehicle">
+
+<h3>⚠️ No Vehicle Selected</h3>
+
+<p>Please select a vehicle from Dashboard first.</p>
+
+<button onclick="goBack()">
+Go to Dashboard
+</button>
+
+</div>
+
+`;
+
+}else{
+
+document.getElementById("vehicleInfo").innerHTML=`
+
+<div class="vehicle">
+
+<h2>🚘 ${vehicle.vehicleNumber}</h2>
+
+<p>
+${vehicle.make} ${vehicle.model}
+</p>
+
+<strong>Owner:</strong> ${vehicle.owner}
+
+</div>
+
+`;
+
+loadDocuments();
+
+}
+
+
+function getStorageKey(){
+
+return "vehicleDocuments_"+vehicle.id;
+
+}
+
+
+function loadDocuments(){
+
+const saved=
+JSON.parse(
+localStorage.getItem(getStorageKey()) || "{}"
+);
+
+const area=
+document.getElementById("documentsArea");
+
+area.innerHTML="";
+
+createDocumentCard(
+"RC",
+"rc",
+saved.rc,
+area
+);
+
+createDocumentCard(
+"Insurance",
+"insurance",
+saved.insurance,
+area
+);
+
+createDocumentCard(
+"PUC",
+"puc",
+saved.puc,
+area
+);
+
+}
+
+
+function createDocumentCard(
+title,
+key,
+saved,
+area
+){
+
+const card=
+document.createElement("div");
+
+card.className="card";
+
+card.innerHTML=`
+
+<h2>
+${title}
+</h2>
+
+<input
+type="file"
+id="${key}"
+accept="image/*,application/pdf"
+capture="environment">
+
+<div id="${key}Preview"></div>
+
+<button
+onclick="saveDocument('${key}','${title}')">
+
+Save ${title}
+
+</button>
+
+<button
+class="delete"
+onclick="deleteDocument('${key}','${title}')">
+
+Delete ${title}
+
+</button>
+
+`;
+
+area.appendChild(card);
+
+if(saved){
+
+showSavedDocument(
+key,
+saved
+);
+
+}
+
+}
+
+
+function saveDocument(key,title){
+
+const input=
+document.getElementById(key);
+
+const file=input.files[0];
+
+if(!file){
+
+alert("Please select a photo or PDF.");
+
+return;
+
+}
+
+if(file.size > 10*1024*1024){
+
+alert("File size must be below 10 MB.");
+
+return;
+
+}
+
+const reader=
+new FileReader();
+
+reader.onload=function(){
+
+const saved=
+JSON.parse(
+localStorage.getItem(getStorageKey()) || "{}"
+);
+
+saved[key]={
+
+name:file.name,
+
+type:file.type,
+
+data:reader.result
+
+};
+
+localStorage.setItem(
+getStorageKey(),
+JSON.stringify(saved)
+);
+
+showSavedDocument(
+key,
+saved[key]
+);
+
+alert(title+" saved for "+vehicle.vehicleNumber);
+
+};
+
+reader.readAsDataURL(file);
+
+}
+
+
+function showSavedDocument(key,file){
+
+const preview=
+document.getElementById(key+"Preview");
+
+if(!preview || !file){
+
+return;
+
+}
+
+preview.innerHTML="";
+
+if(file.type.startsWith("image/")){
+
+const img=
+document.createElement("img");
+
+img.className="preview";
+
+img.src=file.data;
+
+preview.appendChild(img);
+
+}else{
+
+const box=
+document.createElement("div");
+
+box.className="pdf";
+
+box.innerHTML=
+
+"📄 <strong>PDF saved</strong><br>"+
+file.name+
+"<br><br>"+
+"<a href='"+file.data+"' target='_blank'>Open PDF</a>";
+
+preview.appendChild(box);
+
+}
+
+}
+
+
+function deleteDocument(key,title){
+
+const saved=
+JSON.parse(
+localStorage.getItem(getStorageKey()) || "{}"
+);
+
+delete saved[key];
+
+localStorage.setItem(
+getStorageKey(),
+JSON.stringify(saved)
+);
+
+const preview=
+document.getElementById(key+"Preview");
+
+if(preview){
+
+preview.innerHTML="";
+
+}
+
+alert(title+" deleted.");
+
+}
+
+</script>
+
+</body>
+</html>
