@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Documents</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  margin-bottom:18px;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.card h2{
+  margin-bottom:8px;
+}
+
+.status{
+  margin:12px 0;
+  font-weight:bold;
+}
+
+input[type="file"]{
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:8px;
+  margin:10px 0;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  margin-top:8px;
+}
+
+.delete{
+  background:#c62828;
+}
+
+.preview{
+  width:100%;
+  max-height:300px;
+  object-fit:contain;
+  margin-top:15px;
+  border-radius:8px;
+  border:1px solid #ddd;
+}
+
+.pdf{
+  background:#eee;
+  padding:15px;
+  margin-top:15px;
+  border-radius:8px;
+  word-break:break-word;
+}
+
+.back{
+  background:#555;
+  margin-bottom:18px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📄 Vehicle Raksha</h1>
+  <p>RC • Insurance • PUC Documents</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="history.back()">← Back</button>
+
+<!-- RC -->
+<div class="card">
+  <h2>🚘 RC Document</h2>
+  <p>Upload RC photo or PDF.</p>
+
+  <input
+    type="file"
+    id="rcFile"
+    accept="image/*,application/pdf"
+    capture="environment"
+    onchange="uploadDocument('RC','rcFile','rcPreview','rcStatus')">
+
+  <div id="rcStatus" class="status"></div>
+  <div id="rcPreview"></div>
+
+  <button class="delete" onclick="deleteDocument('RC','rcPreview','rcStatus','rcFile')">
+    Delete RC
+  </button>
+</div>
+
+
+<!-- Insurance -->
+<div class="card">
+  <h2>🛡️ Insurance</h2>
+  <p>Upload Insurance photo or PDF.</p>
+
+  <input
+    type="file"
+    id="insuranceFile"
+    accept="image/*,application/pdf"
+    capture="environment"
+    onchange="uploadDocument('Insurance','insuranceFile','insurancePreview','insuranceStatus')">
+
+  <div id="insuranceStatus" class="status"></div>
+  <div id="insurancePreview"></div>
+
+  <button class="delete" onclick="deleteDocument('Insurance','insurancePreview','insuranceStatus','insuranceFile')">
+    Delete Insurance
+  </button>
+</div>
+
+
+<!-- PUC -->
+<div class="card">
+  <h2>🌱 PUC</h2>
+  <p>Upload PUC photo or PDF.</p>
+
+  <input
+    type="file"
+    id="pucFile"
+    accept="image/*,application/pdf"
+    capture="environment"
+    onchange="uploadDocument('PUC','pucFile','pucPreview','pucStatus')">
+
+  <div id="pucStatus" class="status"></div>
+  <div id="pucPreview"></div>
+
+  <button class="delete" onclick="deleteDocument('PUC','pucPreview','pucStatus','pucFile')">
+    Delete PUC
+  </button>
+</div>
+
+</div>
+
+<script>
+
+const documents = {};
+
+function uploadDocument(type,inputId,previewId,statusId){
+
+  const input=document.getElementById(inputId);
+  const file=input.files[0];
+
+  if(!file){
+    return;
+  }
+
+  const maxSize=10*1024*1024;
+
+  if(file.size > maxSize){
+    alert("File size must be below 10 MB.");
+    input.value="";
+    return;
+  }
+
+  const allowed=[
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "application/pdf"
+  ];
+
+  if(!allowed.includes(file.type)){
+    alert("Only JPG, PNG, WEBP or PDF files are allowed.");
+    input.value="";
+    return;
+  }
+
+  documents[type]=file;
+
+  const preview=document.getElementById(previewId);
+  const status=document.getElementById(statusId);
+
+  preview.innerHTML="";
+
+  if(file.type.startsWith("image/")){
+
+    const img=document.createElement("img");
+
+    img.className="preview";
+    img.src=URL.createObjectURL(file);
+
+    preview.appendChild(img);
+
+  }else{
+
+    const box=document.createElement("div");
+
+    box.className="pdf";
+
+    box.innerHTML=
+      "📄 <b>PDF uploaded</b><br>" +
+      file.name +
+      "<br><br>" +
+      "<a href='" +
+      URL.createObjectURL(file) +
+      "' target='_blank'>Open PDF</a>";
+
+    preview.appendChild(box);
+  }
+
+  status.innerHTML="✓ " + type + " uploaded successfully";
+  status.style.color="green";
+}
+
+
+function deleteDocument(type,previewId,statusId,inputId){
+
+  delete documents[type];
+
+  document.getElementById(previewId).innerHTML="";
+  document.getElementById(statusId).innerHTML="";
+  document.getElementById(inputId).value="";
+
+  alert(type + " document deleted.");
+}
+
+</script>
+
+</body>
+</html>
