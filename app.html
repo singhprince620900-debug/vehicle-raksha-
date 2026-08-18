@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:22px 18px;
+  text-align:center;
+}
+
+header h1{
+  font-size:28px;
+}
+
+header p{
+  margin-top:6px;
+  font-size:14px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  margin-bottom:15px;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.card h2{
+  margin-bottom:8px;
+}
+
+.card p{
+  color:#666;
+  margin-bottom:15px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:9px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+
+button:active{
+  transform:scale(.98);
+}
+
+input{
+  width:100%;
+  padding:13px;
+  margin:8px 0;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+.hidden{
+  display:none;
+}
+
+.back{
+  background:#555;
+  margin-bottom:15px;
+}
+
+.success{
+  color:green;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+.footer{
+  text-align:center;
+  padding:20px;
+  color:#777;
+  font-size:13px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>🚗 Vehicle Raksha</h1>
+  <p>Vehicle Safety & Management System</p>
+</header>
+
+<div class="container">
+
+  <div id="home">
+
+    <div class="card">
+      <h2>🏠 Vehicle Dashboard</h2>
+      <p>Manage your vehicle, documents, EMI and cases from one place.</p>
+      <p class="success">● System Active</p>
+    </div>
+
+    <div class="card">
+      <h2>🚘 Vehicle Details</h2>
+      <p>Add your vehicle information.</p>
+      <button onclick="openScreen('vehicle')">Add Vehicle</button>
+    </div>
+
+    <div class="card">
+      <h2>📄 Documents</h2>
+      <p>Manage RC, Insurance, PUC and other documents.</p>
+      <button onclick="openScreen('documents')">Manage Documents</button>
+    </div>
+
+    <div class="card">
+      <h2>💰 EMI & Settlement</h2>
+      <p>Calculate your monthly EMI.</p>
+      <button onclick="openScreen('emi')">Open Calculator</button>
+    </div>
+
+    <div class="card">
+      <h2>🛡️ Vehicle Case</h2>
+      <p>Track your vehicle-related case.</p>
+      <button onclick="openScreen('case')">View Case</button>
+    </div>
+
+  </div>
+
+
+  <div id="vehicle" class="hidden">
+    <button class="back" onclick="goHome()">← Back</button>
+
+    <div class="card">
+      <h2>🚘 Vehicle Registration</h2>
+
+      <input id="owner" placeholder="Owner Name">
+      <input id="number" placeholder="Vehicle Number">
+      <input id="model" placeholder="Vehicle Model">
+
+      <button onclick="saveVehicle()">Save Vehicle</button>
+
+      <p id="vehicleResult"></p>
+    </div>
+  </div>
+
+
+  <div id="documents" class="hidden">
+    <button class="back" onclick="goHome()">← Back</button>
+
+    <div class="card">
+      <h2>📄 Documents</h2>
+
+      <button onclick="documentAlert('RC')">RC</button>
+      <br><br>
+      <button onclick="documentAlert('Insurance')">Insurance</button>
+      <br><br>
+      <button onclick="documentAlert('PUC')">PUC</button>
+    </div>
+  </div>
+
+
+  <div id="emi" class="hidden">
+    <button class="back" onclick="goHome()">← Back</button>
+
+    <div class="card">
+      <h2>💰 EMI Calculator</h2>
+
+      <input id="loan" type="number" placeholder="Loan Amount">
+      <input id="rate" type="number" placeholder="Annual Interest Rate (%)">
+      <input id="months" type="number" placeholder="Loan Tenure (Months)">
+
+      <button onclick="calculateEMI()">Calculate EMI</button>
+
+      <p id="emiResult"></p>
+    </div>
+  </div>
+
+
+  <div id="case" class="hidden">
+    <button class="back" onclick="goHome()">← Back</button>
+
+    <div class="card">
+      <h2>🛡️ Vehicle Case</h2>
+      <p>Case Status</p>
+      <p class="success">● Active</p>
+
+      <button onclick="alert('Case timeline will be available in the next version.')">
+        View Case Timeline
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<div class="footer">
+  © 2026 Vehicle Raksha
+</div>
+
+<script>
+
+function openScreen(screen){
+
+  document.getElementById("home").classList.add("hidden");
+
+  document.getElementById("vehicle").classList.add("hidden");
+  document.getElementById("documents").classList.add("hidden");
+  document.getElementById("emi").classList.add("hidden");
+  document.getElementById("case").classList.add("hidden");
+
+  document.getElementById(screen).classList.remove("hidden");
+}
+
+function goHome(){
+
+  document.getElementById("vehicle").classList.add("hidden");
+  document.getElementById("documents").classList.add("hidden");
+  document.getElementById("emi").classList.add("hidden");
+  document.getElementById("case").classList.add("hidden");
+
+  document.getElementById("home").classList.remove("hidden");
+}
+
+function saveVehicle(){
+
+  let owner=document.getElementById("owner").value;
+  let number=document.getElementById("number").value;
+  let model=document.getElementById("model").value;
+
+  if(owner==="" || number==="" || model===""){
+    alert("Please fill all vehicle details.");
+    return;
+  }
+
+  document.getElementById("vehicleResult").innerHTML =
+  "✓ Vehicle saved successfully";
+}
+
+function documentAlert(type){
+  alert(type + " document module selected.");
+}
+
+function calculateEMI(){
+
+  let P=parseFloat(document.getElementById("loan").value);
+  let annualRate=parseFloat(document.getElementById("rate").value);
+  let n=parseInt(document.getElementById("months").value);
+
+  if(!P || !annualRate || !n){
+    alert("Please enter all EMI details.");
+    return;
+  }
+
+  let r=annualRate/12/100;
+
+  let emi=(P*r*Math.pow(1+r,n))/(Math.pow(1+r,n)-1);
+
+  document.getElementById("emiResult").innerHTML =
+  "Monthly EMI: ₹" + emi.toFixed(2);
+}
+
+</script>
+
+</body>
+</html>
