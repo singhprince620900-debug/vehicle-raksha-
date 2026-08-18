@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - EMI & Settlement</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.vehicle{
+  background:#e3f2fd;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+input,select{
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  margin-top:12px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+}
+
+.back{
+  background:#555;
+}
+
+.result{
+  background:#e8f5e9;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:18px;
+  line-height:1.9;
+}
+
+.settlement{
+  background:#fff3e0;
+  padding:15px;
+  border-radius:10px;
+  margin-top:15px;
+  line-height:1.8;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>💰 Vehicle Raksha</h1>
+<p>EMI & Settlement</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="goDashboard()">
+← Dashboard
+</button>
+
+<div id="vehicleBox"></div>
+
+<div class="card">
+
+<h2>🏦 Loan Details</h2>
+
+<label>Loan Amount (₹)</label>
+<input id="loanAmount" type="number" placeholder="Example: 500000">
+
+<label>Annual Interest Rate (%)</label>
+<input id="interestRate" type="number" step="0.01" placeholder="Example: 10.5">
+
+<label>Loan Tenure (Months)</label>
+<input id="tenure" type="number" placeholder="Example: 60">
+
+<label>Paid EMI Count</label>
+<input id="paidEmi" type="number" placeholder="Example: 12">
+
+<button onclick="calculateEMI()">
+🧮 Calculate EMI
+</button>
+
+</div>
+
+<div id="result"></div>
+
+<div class="card">
+
+<h2>🤝 Settlement</h2>
+
+<label>Settlement Amount (₹)</label>
+<input id="settlementAmount" type="number" placeholder="Enter settlement amount">
+
+<label>Settlement Status</label>
+
+<select id="settlementStatus">
+<option>Not Started</option>
+<option>Under Negotiation</option>
+<option>Approved</option>
+<option>Paid</option>
+<option>Rejected</option>
+</select>
+
+<button onclick="saveSettlement()">
+💾 Save Settlement
+</button>
+
+<div id="settlementResult"></div>
+
+</div>
+
+</div>
+
+<script>
+
+const selectedId =
+localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles =
+JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+const vehicle =
+vehicles.find(
+v => String(v.id) === String(selectedId)
+);
+
+function goDashboard(){
+window.location.href="dashboard.html";
+}
+
+if(!vehicle){
+
+document.getElementById("vehicleBox").innerHTML=`
+<div class="vehicle">
+<h3>⚠️ No Vehicle Selected</h3>
+<p>Please select a vehicle from Dashboard first.</p>
+</div>
+`;
+
+}else{
+
+document.getElementById("vehicleBox").innerHTML=`
+<div class="vehicle">
+<h2>🚘 ${vehicle.vehicleNumber}</h2>
+<p>${vehicle.make} ${vehicle.model}</p>
+<strong>Owner:</strong> ${vehicle.owner}
+</div>
+`;
+
+loadData();
+
+}
+
+function storageKey(){
+return "emiData_" + vehicle.id;
+}
+
+function calculateEMI(){
+
+if(!vehicle){
+alert("Please select a vehicle first.");
+return;
+}
+
+const P =
+Number(document.getElementById("loanAmount").value);
+
+const annualRate =
+Number(document.getElementById("interestRate").value);
+
+const N =
+Number(document.getElementById("tenure").value);
+
+const paid =
+Number(document.getElementById("paidEmi").value) || 0;
+
+if(P <= 0 || annualRate < 0 || N <= 0){
+alert("Please enter valid loan details.");
+return;
+}
+
+const r = annualRate / 12 / 100;
+
+let emi;
+
+if(r === 0){
+emi = P / N;
+}else{
+emi =
+P * r * Math.pow(1+r,N) /
+(Math.pow(1+r,N)-1);
+}
+
+const totalPayment = emi * N;
+
+const totalInterest = totalPayment - P;
+
+const remaining = Math.max(N - paid,0);
+
+const outstanding = emi * remaining;
+
+document.getElementById("result").innerHTML=`
+
+<div class="result">
+
+<h2>📊 EMI Result</h2>
+
+<strong>Monthly EMI:</strong>
+₹${emi.toFixed(2)}
+<br>
+
+<strong>Total Interest:</strong>
+₹${totalInterest.toFixed(2)}
+<br>
+
+<strong>Total Payment:</strong>
+₹${totalPayment.toFixed(2)}
+<br>
+
+<strong>Remaining EMI:</strong>
+${remaining}
+<br>
+
+<strong>Outstanding Amount:</strong>
+₹${outstanding.toFixed(2)}
+
+</div>
+`;
+
+const data={
+loanAmount:P,
+interestRate:annualRate,
+tenure:N,
+paidEmi:paid,
+emi:emi,
+totalInterest:totalInterest,
+totalPayment:totalPayment,
+remainingEmi:remaining,
+outstanding:outstanding
+};
+
+localStorage.setItem(
+storageKey(),
+JSON.stringify(data)
+);
+
+}
+
+function saveSettlement(){
+
+if(!vehicle){
+alert("Please select a vehicle first.");
+return;
+}
+
+const amount =
+Number(
+document.getElementById("settlementAmount").value
+);
+
+const status =
+document.getElementById("settlementStatus").value;
+
+if(amount < 0){
+alert("Enter a valid settlement amount.");
+return;
+}
+
+const oldData =
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+oldData.settlementAmount = amount;
+oldData.settlementStatus = status;
+
+localStorage.setItem(
+storageKey(),
+JSON.stringify(oldData)
+);
+
+document.getElementById(
+"settlementResult"
+).innerHTML=`
+
+<div class="settlement">
+
+<h3>✓ Settlement Saved</h3>
+
+<strong>Amount:</strong>
+₹${amount.toFixed(2)}
+<br>
+
+<strong>Status:</strong>
+${status}
+
+</div>
+`;
+
+}
+
+function loadData(){
+
+if(!vehicle){
+return;
+}
+
+const data =
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+if(data.loanAmount){
+
+document.getElementById("loanAmount").value =
+data.loanAmount;
+
+document.getElementById("interestRate").value =
+data.interestRate;
+
+document.getElementById("tenure").value =
+data.tenure;
+
+document.getElementById("paidEmi").value =
+data.paidEmi;
+
+calculateEMI();
+
+}
+
+if(data.settlementAmount !== undefined){
+
+document.getElementById("settlementAmount").value =
+data.settlementAmount;
+
+document.getElementById("settlementStatus").value =
+data.settlementStatus || "Not Started";
+
+}
+
+}
+
+</script>
+
+</body>
+</html>
