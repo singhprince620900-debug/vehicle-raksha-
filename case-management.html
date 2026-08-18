@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vehicle Raksha - Case Management</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+h2{
+  margin-top:0;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:13px;
+  margin:8px 0 14px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  margin-top:8px;
+}
+
+.back{
+  background:#555;
+  margin-bottom:18px;
+}
+
+.timeline{
+  border-left:4px solid #0b3d91;
+  padding-left:18px;
+  margin-top:20px;
+}
+
+.event{
+  background:#f7f9fc;
+  padding:15px;
+  margin-bottom:15px;
+  border-radius:10px;
+  position:relative;
+}
+
+.event:before{
+  content:"";
+  width:12px;
+  height:12px;
+  background:#0b3d91;
+  border-radius:50%;
+  position:absolute;
+  left:-26px;
+  top:20px;
+}
+
+.status{
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+  font-weight:bold;
+}
+
+.active{
+  background:#e3f2fd;
+  color:#1565c0;
+}
+
+.pending{
+  background:#fff8e1;
+  color:#f57f17;
+}
+
+.closed{
+  background:#e8f5e9;
+  color:#2e7d32;
+}
+
+.danger{
+  background:#ffebee;
+  color:#c62828;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🛡️ Vehicle Raksha</h1>
+
+<p>Vehicle Case Management</p>
+
+</header>
+
+<div class="container">
+
+<button class="back" onclick="history.back()">
+← Back
+</button>
+
+<div class="card">
+
+<h2>📋 Create Case</h2>
+
+<label>Case Number</label>
+
+<input
+id="caseNumber"
+placeholder="Enter case number">
+
+<label>Vehicle Number</label>
+
+<input
+id="vehicleNumber"
+placeholder="RJ14AB1234">
+
+<label>Case Type</label>
+
+<select id="caseType">
+
+<option value="">Select case type</option>
+
+<option>EMI Default</option>
+<option>Vehicle Seizure</option>
+<option>Insurance Claim</option>
+<option>Accident</option>
+<option>Legal Case</option>
+<option>Other</option>
+
+</select>
+
+<label>Bank / Finance Company</label>
+
+<input
+id="finance"
+placeholder="Finance company name">
+
+<label>Case Status</label>
+
+<select id="caseStatus">
+
+<option>Active</option>
+<option>Pending</option>
+<option>Closed</option>
+
+</select>
+
+<label>Case Notes</label>
+
+<textarea
+id="notes"
+placeholder="Enter case details"></textarea>
+
+<button onclick="createCase()">
+Create Case
+</button>
+
+<div id="caseMessage"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>📊 Case Summary</h2>
+
+<div id="summary">
+
+No case created yet.
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<h2>🕒 Case Timeline</h2>
+
+<div class="timeline" id="timeline">
+
+<div class="event">
+
+<strong>Case System Ready</strong>
+
+<p>Waiting for case creation.</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+let caseCreated=false;
+
+function createCase(){
+
+const caseNumber=
+document.getElementById("caseNumber").value.trim();
+
+const vehicleNumber=
+document.getElementById("vehicleNumber").value.trim();
+
+const caseType=
+document.getElementById("caseType").value;
+
+const finance=
+document.getElementById("finance").value.trim();
+
+const status=
+document.getElementById("caseStatus").value;
+
+const notes=
+document.getElementById("notes").value.trim();
+
+if(
+caseNumber==="" ||
+vehicleNumber==="" ||
+caseType==="" ||
+finance===""
+){
+
+alert("Please fill all required case details.");
+
+return;
+
+}
+
+caseCreated=true;
+
+document.getElementById("caseMessage").innerHTML=
+'<div class="status active">✓ Case created successfully</div>';
+
+document.getElementById("summary").innerHTML=
+
+"<strong>Case Number:</strong> "
++caseNumber+
+
+"<br><br><strong>Vehicle:</strong> "
++vehicleNumber+
+
+"<br><br><strong>Type:</strong> "
++caseType+
+
+"<br><br><strong>Finance:</strong> "
++finance+
+
+"<br><br><strong>Status:</strong> "
++status+
+
+"<br><br><strong>Notes:</strong> "
++(notes || "No notes added.");
+
+const timeline=
+document.getElementById("timeline");
+
+timeline.innerHTML="";
+
+addEvent(
+timeline,
+"Case Created",
+"Case "+caseNumber+" created successfully."
+);
+
+addEvent(
+timeline,
+"Vehicle Registered",
+"Vehicle "+vehicleNumber+" linked with the case."
+);
+
+addEvent(
+timeline,
+"Case Status",
+"Current status: "+status
+);
+
+}
+
+function addEvent(container,title,text){
+
+const event=
+document.createElement("div");
+
+event.className="event";
+
+event.innerHTML=
+
+"<strong>"+title+"</strong>"+
+"<p>"+text+"</p>"+
+"<small>"+new Date().toLocaleString()+"</small>";
+
+container.appendChild(event);
+
+}
+
+</script>
+
+</body>
+
+</html>
