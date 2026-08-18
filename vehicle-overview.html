@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Vehicle Overview</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:18px;
+  margin-bottom:16px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.vehicle{
+  background:#e3f2fd;
+  padding:18px;
+  border-radius:12px;
+  margin-bottom:18px;
+}
+
+.status{
+  padding:11px;
+  margin:8px 0;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.valid{
+  background:#e8f5e9;
+  color:#2e7d32;
+}
+
+.warning{
+  background:#fff3e0;
+  color:#ef6c00;
+}
+
+.expired{
+  background:#ffebee;
+  color:#c62828;
+}
+
+.neutral{
+  background:#eeeeee;
+  color:#555;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  margin-top:10px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+}
+
+.back{
+  background:#555;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🚗 Vehicle Raksha</h1>
+<p>Complete Vehicle Overview</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="goDashboard()">
+← Dashboard
+</button>
+
+<div id="vehicleBox"></div>
+
+<div class="card">
+<h2>📄 Documents</h2>
+<div id="documents"></div>
+</div>
+
+<div class="card">
+<h2>💰 EMI & Settlement</h2>
+<div id="emi"></div>
+</div>
+
+<div class="card">
+<h2>🛡️ Case Management</h2>
+<div id="case"></div>
+</div>
+
+</div>
+
+<script>
+
+const selectedId =
+localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles =
+JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+const vehicle =
+vehicles.find(
+v => String(v.id) === String(selectedId)
+);
+
+
+function goDashboard(){
+window.location.href="dashboard.html";
+}
+
+
+if(!vehicle){
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h2>⚠️ No Vehicle Selected</h2>
+
+<p>Please select a vehicle from Dashboard first.</p>
+
+</div>
+
+`;
+
+}else{
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h2>🚘 ${vehicle.vehicleNumber}</h2>
+
+<p>
+<strong>Owner:</strong>
+${vehicle.owner}
+</p>
+
+<p>
+<strong>Vehicle:</strong>
+${vehicle.make} ${vehicle.model}
+</p>
+
+<p>
+<strong>Fuel:</strong>
+${vehicle.fuel || "Not specified"}
+</p>
+
+<p>
+<strong>Finance:</strong>
+${vehicle.finance || "No finance company"}
+</p>
+
+</div>
+`;
+
+loadDocuments();
+loadEMI();
+loadCase();
+
+}
+
+
+function documentStatus(name,date){
+
+if(!date){
+
+return `
+<div class="status neutral">
+${name}: Expiry date not added
+</div>
+`;
+
+}
+
+const today=new Date();
+
+today.setHours(0,0,0,0);
+
+const expiry=new Date(date);
+
+expiry.setHours(0,0,0,0);
+
+const days=Math.ceil(
+(expiry-today)/
+(1000*60*60*24)
+);
+
+
+if(days<0){
+
+return `
+<div class="status expired">
+🔴 ${name}: Expired
+</div>
+`;
+
+}
+
+if(days<=30){
+
+return `
+<div class="status warning">
+🟠 ${name}: Expires in ${days} day(s)
+</div>
+`;
+
+}
+
+return `
+<div class="status valid">
+🟢 ${name}: Valid — ${days} day(s) remaining
+</div>
+`;
+
+}
+
+
+function loadDocuments(){
+
+const data=
+JSON.parse(
+localStorage.getItem(
+"vehicleDetails_"+vehicle.id
+) || "{}"
+);
+
+document.getElementById("documents").innerHTML=
+
+documentStatus(
+"🚘 RC",
+data.rcExpiry
+)
+
++
+
+documentStatus(
+"🛡️ Insurance",
+data.insuranceExpiry
+)
+
++
+
+documentStatus(
+"🌱 PUC",
+data.pucExpiry
+);
+
+}
+
+
+function loadEMI(){
+
+const data=
+JSON.parse(
+localStorage.getItem(
+"emiData_"+vehicle.id
+) || "{}"
+);
+
+const box=
+document.getElementById("emi");
+
+if(!data.loanAmount){
+
+box.innerHTML=`
+<div class="status neutral">
+EMI details not added yet.
+</div>
+`;
+
+return;
+
+}
+
+box.innerHTML=`
+
+<div class="status valid">
+
+Monthly EMI:
+₹${Number(data.emi).toFixed(2)}
+
+<br>
+
+Outstanding:
+₹${Number(data.outstanding).toFixed(2)}
+
+<br>
+
+Remaining EMI:
+${data.remainingEmi}
+
+</div>
+
+<div class="status neutral">
+
+Settlement:
+₹${Number(
+data.settlementAmount || 0
+).toFixed(2)}
+
+<br>
+
+Status:
+${data.settlementStatus || "Not Started"}
+
+</div>
+
+`;
+
+}
+
+
+function loadCase(){
+
+const data=
+JSON.parse(
+localStorage.getItem(
+"caseData_"+vehicle.id
+) || "{}"
+);
+
+const box=
+document.getElementById("case");
+
+if(!data.caseNumber){
+
+box.innerHTML=`
+<div class="status neutral">
+No case added yet.
+</div>
+`;
+
+return;
+
+}
+
+box.innerHTML=`
+
+<div class="status valid">
+
+Case Number:
+${data.caseNumber}
+
+<br>
+
+Case Type:
+${data.caseType}
+
+<br>
+
+Status:
+${data.caseStatus}
+
+</div>
+
+`;
+
+}
+
+</script>
+
+</body>
+</html>
