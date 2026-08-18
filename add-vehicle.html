@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Add Vehicle</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+input,select{
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  margin-top:18px;
+}
+
+.back{
+  background:#555;
+  margin-top:0;
+  margin-bottom:18px;
+}
+
+.success{
+  margin-top:15px;
+  padding:14px;
+  border-radius:8px;
+  background:#e8f5e9;
+  color:#2e7d32;
+  font-weight:bold;
+}
+
+.error{
+  margin-top:15px;
+  padding:14px;
+  border-radius:8px;
+  background:#ffebee;
+  color:#c62828;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🚘 Vehicle Raksha</h1>
+<p>Add New Vehicle</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="history.back()">← Back</button>
+
+<div class="card">
+
+<h2>Vehicle Information</h2>
+
+<label>Owner Name *</label>
+<input id="owner" placeholder="Enter owner name">
+
+<label>Mobile Number *</label>
+<input id="mobile" type="tel" maxlength="10" placeholder="10 digit mobile number">
+
+<label>Vehicle Number *</label>
+<input id="vehicleNumber" placeholder="RJ14AB1234">
+
+<label>Vehicle Make *</label>
+<input id="make" placeholder="Example: MG">
+
+<label>Vehicle Model *</label>
+<input id="model" placeholder="Example: Hector">
+
+<label>Registration Date</label>
+<input id="registrationDate" type="date">
+
+<label>Fuel Type</label>
+<select id="fuel">
+<option value="">Select fuel type</option>
+<option>Petrol</option>
+<option>Diesel</option>
+<option>CNG</option>
+<option>Electric</option>
+<option>Hybrid</option>
+</select>
+
+<label>Finance Company</label>
+<input id="finance" placeholder="If financed">
+
+<label>EMI Status</label>
+<select id="emiStatus">
+<option>No Loan</option>
+<option>Active</option>
+<option>Paid</option>
+<option>Default</option>
+<option>Settlement</option>
+</select>
+
+<button onclick="saveVehicle()">
+Save Vehicle
+</button>
+
+<div id="message"></div>
+
+</div>
+
+</div>
+
+<script>
+
+function saveVehicle(){
+
+const owner=
+document.getElementById("owner").value.trim();
+
+const mobile=
+document.getElementById("mobile").value.trim();
+
+const vehicleNumber=
+document.getElementById("vehicleNumber").value.trim();
+
+const make=
+document.getElementById("make").value.trim();
+
+const model=
+document.getElementById("model").value.trim();
+
+const registrationDate=
+document.getElementById("registrationDate").value;
+
+const fuel=
+document.getElementById("fuel").value;
+
+const finance=
+document.getElementById("finance").value.trim();
+
+const emiStatus=
+document.getElementById("emiStatus").value;
+
+const message=
+document.getElementById("message");
+
+if(!owner || !mobile || !vehicleNumber || !make || !model){
+
+message.className="error";
+
+message.innerHTML=
+"Please fill all required fields marked with *.";
+
+return;
+}
+
+if(!/^[0-9]{10}$/.test(mobile)){
+
+message.className="error";
+
+message.innerHTML=
+"Please enter a valid 10 digit mobile number.";
+
+return;
+}
+
+const vehicle={
+
+owner:owner,
+mobile:mobile,
+vehicleNumber:vehicleNumber.toUpperCase(),
+make:make,
+model:model,
+registrationDate:registrationDate,
+fuel:fuel,
+finance:finance,
+emiStatus:emiStatus
+
+};
+
+localStorage.setItem(
+"vehicleRakshaVehicle",
+JSON.stringify(vehicle)
+);
+
+message.className="success";
+
+message.innerHTML=
+"✓ Vehicle saved successfully!<br><br>"+
+vehicle.vehicleNumber+
+" — "+
+vehicle.make+
+" "+
+vehicle.model;
+
+}
+
+</script>
+
+</body>
+</html>
