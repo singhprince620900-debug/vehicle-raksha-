@@ -294,6 +294,165 @@ localStorage.setItem(
 "vehicleRakshaSelected",
 id
 );
+function loadDashboardAlerts(){
+
+  const id = getSelected();
+
+  const box = document.getElementById("dashboardAlerts");
+
+  if(!box){
+    return;
+  }
+
+  if(!id){
+
+    box.innerHTML = `
+      <div class="alert neutral">
+        🚘 Please select a vehicle first.
+      </div>
+    `;
+
+    return;
+  }
+
+  const vehicles = getVehicles();
+
+  const vehicle = vehicles.find(
+    v => String(v.id) === String(id)
+  );
+
+  if(!vehicle){
+    return;
+  }
+
+  let html = "";
+
+  const documents = JSON.parse(
+    localStorage.getItem(
+      "vehicleDocuments_" + id
+    ) || "{}"
+  );
+
+  if(documents.RC){
+
+    html += `
+      <div class="alert safe">
+        🟢 RC Document Uploaded
+      </div>
+    `;
+
+  }else{
+
+    html += `
+      <div class="alert warning">
+        🟠 RC Document Not Uploaded
+      </div>
+    `;
+
+  }
+
+
+  if(documents.Insurance){
+
+    html += `
+      <div class="alert safe">
+        🟢 Insurance Uploaded
+      </div>
+    `;
+
+  }else{
+
+    html += `
+      <div class="alert warning">
+        🟠 Insurance Not Uploaded
+      </div>
+    `;
+
+  }
+
+
+  if(documents.PUC){
+
+    html += `
+      <div class="alert safe">
+        🟢 PUC Uploaded
+      </div>
+    `;
+
+  }else{
+
+    html += `
+      <div class="alert warning">
+        🟠 PUC Not Uploaded
+      </div>
+    `;
+
+  }
+
+
+  const emi = JSON.parse(
+    localStorage.getItem(
+      "emiData_" + id
+    ) || "{}"
+  );
+
+
+  if(emi.outstanding !== undefined){
+
+    html += `
+      <div class="alert info">
+        💰 EMI Outstanding:
+        ₹${Number(emi.outstanding).toFixed(2)}
+      </div>
+    `;
+
+  }else{
+
+    html += `
+      <div class="alert neutral">
+        💰 EMI Details Not Added
+      </div>
+    `;
+
+  }
+
+
+  const caseData = JSON.parse(
+    localStorage.getItem(
+      "caseData_" + id
+    ) || "{}"
+  );
+
+
+  if(caseData.caseNumber){
+
+    html += `
+      <div class="alert info">
+        🛡️ Case:
+        ${caseData.caseNumber}
+        <br>
+        Status:
+        ${caseData.caseStatus}
+      </div>
+    `;
+
+  }else{
+
+    html += `
+      <div class="alert neutral">
+        🛡️ No Case Added
+      </div>
+    `;
+
+  }
+
+
+  box.innerHTML = html;
+
+}
+
+
+loadDashboardAlerts();
 
 loadVehicles();
 
