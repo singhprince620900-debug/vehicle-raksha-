@@ -259,7 +259,187 @@ id
 loadVehicles();
 
 }
+function loadDashboardAlerts(){
 
+const id=getSelected();
+
+const box=
+document.getElementById("dashboardAlerts");
+
+if(!id){
+
+box.innerHTML=`
+<div class="status-box">
+Please select a vehicle first.
+</div>
+`;
+
+return;
+
+}
+
+
+const vehicle=
+getVehicles().find(
+v=>String(v.id)===String(id)
+);
+
+
+if(!vehicle){
+
+return;
+
+}
+
+
+let html="";
+
+
+const documentData=
+JSON.parse(
+localStorage.getItem(
+"vehicleDetails_"+id
+) || "{}"
+);
+
+
+function checkExpiry(name,date){
+
+if(!date){
+
+html+=`
+<div class="alert neutral">
+${name}: Expiry date not added
+</div>
+`;
+
+return;
+
+}
+
+
+const today=new Date();
+
+today.setHours(0,0,0,0);
+
+const expiry=new Date(date);
+
+expiry.setHours(0,0,0,0);
+
+const days=Math.ceil(
+(expiry-today)/
+(1000*60*60*24)
+);
+
+
+if(days<0){
+
+html+=`
+<div class="alert danger">
+🔴 ${name}: Expired
+</div>
+`;
+
+}else if(days<=30){
+
+html+=`
+<div class="alert warning">
+🟠 ${name}: Expires in ${days} day(s)
+</div>
+`;
+
+}else{
+
+html+=`
+<div class="alert safe">
+🟢 ${name}: Valid
+</div>
+`;
+
+}
+
+}
+
+
+checkExpiry("RC",documentData.rcExpiry);
+
+checkExpiry(
+"Insurance",
+documentData.insuranceExpiry
+);
+
+checkExpiry(
+"PUC",
+documentData.pucExpiry
+);
+
+
+const emi=
+JSON.parse(
+localStorage.getItem(
+"emiData_"+id
+) || "{}"
+);
+
+
+if(emi.outstanding !== undefined){
+
+html+=`
+<div class="alert info">
+💰 Outstanding EMI:
+₹${Number(emi.outstanding).toFixed(2)}
+</div>
+`;
+
+}else{
+
+html+=`
+<div class="alert neutral">
+💰 EMI details not added
+</div>
+`;
+
+}
+
+
+const caseData=
+JSON.parse(
+localStorage.getItem(
+"caseData_"+id
+) || "{}"
+);
+
+
+if(caseData.caseNumber){
+
+html+=`
+<div class="alert info">
+🛡️ Case:
+${caseData.caseNumber}
+<br>
+Status:
+${caseData.caseStatus}
+</div>
+`;
+
+}else{
+
+html+=`
+<div class="alert neutral">
+🛡️ No case added
+</div>
+`;
+
+}
+
+
+box.innerHTML=html;
+
+}
+
+
+loadVehicles();
+loadDashboardAlerts();
 
 function loadVehicles(){
 
