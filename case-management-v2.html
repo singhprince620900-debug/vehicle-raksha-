@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Case Management</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:20px;
+  text-align:center;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.vehicle{
+  background:#e3f2fd;
+  padding:15px;
+  border-radius:10px;
+  margin-bottom:18px;
+}
+
+label{
+  display:block;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+input,
+select,
+textarea{
+  width:100%;
+  padding:13px;
+  margin-top:7px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+textarea{
+  min-height:100px;
+  resize:vertical;
+}
+
+button{
+  width:100%;
+  padding:13px;
+  margin-top:12px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+}
+
+.back{
+  background:#555;
+}
+
+.success{
+  background:#e8f5e9;
+  color:#2e7d32;
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px;
+  font-weight:bold;
+}
+
+.timeline-item{
+  border-left:4px solid #0b3d91;
+  padding:10px 12px;
+  margin:10px 0;
+  background:#f5f7fa;
+  border-radius:6px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>🛡️ Vehicle Raksha</h1>
+<p>Case Management</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="goDashboard()">
+← Dashboard
+</button>
+
+<div id="vehicleBox"></div>
+
+<div class="card">
+
+<h2>📋 Case Details</h2>
+
+<label>Case Number</label>
+<input
+id="caseNumber"
+placeholder="Enter Case Number">
+
+<label>Case Date</label>
+<input
+id="caseDate"
+type="date">
+
+<label>Bank / Finance Company</label>
+<input
+id="financeCompany"
+placeholder="Enter finance company">
+
+<label>Customer / Owner</label>
+<input
+id="customerName"
+placeholder="Enter customer name">
+
+<label>Case Type</label>
+
+<select id="caseType">
+
+<option>Loan Default</option>
+<option>EMI Pending</option>
+<option>Vehicle Recovery</option>
+<option>Settlement</option>
+<option>Legal Notice</option>
+<option>Other</option>
+
+</select>
+
+<label>Case Status</label>
+
+<select id="caseStatus">
+
+<option>Open</option>
+<option>In Progress</option>
+<option>Under Negotiation</option>
+<option>Settled</option>
+<option>Closed</option>
+
+</select>
+
+<label>Case Description</label>
+
+<textarea
+id="description"
+placeholder="Enter case details">
+</textarea>
+
+<button onclick="saveCase()">
+💾 Save Case
+</button>
+
+<div id="saveMessage"></div>
+
+</div>
+
+
+<div class="card">
+
+<h2>⏱️ Case Timeline</h2>
+
+<div id="timeline">
+<p>No timeline activity yet.</p>
+</div>
+
+<label>Timeline Update</label>
+
+<input
+id="timelineText"
+placeholder="Example: Customer contacted">
+
+<button onclick="addTimeline()">
+➕ Add Timeline Update
+</button>
+
+</div>
+
+
+<div class="card">
+
+<h2>📊 Current Case</h2>
+
+<div id="caseSummary">
+No case saved yet.
+</div>
+
+</div>
+
+</div>
+
+
+<script>
+
+const selectedId =
+localStorage.getItem("vehicleRakshaSelected");
+
+const vehicles =
+JSON.parse(
+localStorage.getItem("vehicleRakshaVehicles") || "[]"
+);
+
+const vehicle =
+vehicles.find(
+v => String(v.id) === String(selectedId)
+);
+
+
+function goDashboard(){
+
+window.location.href="dashboard.html";
+
+}
+
+
+if(!vehicle){
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h3>⚠️ No Vehicle Selected</h3>
+
+<p>
+Please select a vehicle from Dashboard first.
+</p>
+
+</div>
+
+`;
+
+}else{
+
+document.getElementById("vehicleBox").innerHTML=`
+
+<div class="vehicle">
+
+<h2>🚘 ${vehicle.vehicleNumber}</h2>
+
+<p>
+${vehicle.make} ${vehicle.model}
+</p>
+
+<strong>Owner:</strong>
+${vehicle.owner}
+
+</div>
+
+`;
+
+loadCase();
+
+}
+
+
+function storageKey(){
+
+return "caseData_" + vehicle.id;
+
+}
+
+
+function timelineKey(){
+
+return "caseTimeline_" + vehicle.id;
+
+}
+
+
+function saveCase(){
+
+if(!vehicle){
+
+alert("Please select a vehicle first.");
+
+return;
+
+}
+
+
+const data={
+
+caseNumber:
+document.getElementById("caseNumber").value.trim(),
+
+caseDate:
+document.getElementById("caseDate").value,
+
+financeCompany:
+document.getElementById("financeCompany").value.trim(),
+
+customerName:
+document.getElementById("customerName").value.trim(),
+
+caseType:
+document.getElementById("caseType").value,
+
+caseStatus:
+document.getElementById("caseStatus").value,
+
+description:
+document.getElementById("description").value.trim()
+
+};
+
+
+if(!data.caseNumber){
+
+alert("Please enter Case Number.");
+
+return;
+
+}
+
+
+localStorage.setItem(
+storageKey(),
+JSON.stringify(data)
+);
+
+
+document.getElementById(
+"saveMessage"
+).innerHTML=
+'<div class="success">✓ Case saved successfully</div>';
+
+
+showSummary();
+
+}
+
+
+function addTimeline(){
+
+if(!vehicle){
+
+alert("Please select a vehicle first.");
+
+return;
+
+}
+
+
+const text=
+document.getElementById("timelineText")
+.value.trim();
+
+
+if(!text){
+
+alert("Please enter a timeline update.");
+
+return;
+
+}
+
+
+const timeline=
+JSON.parse(
+localStorage.getItem(timelineKey()) || "[]"
+);
+
+
+timeline.push({
+
+date:new Date().toLocaleString(),
+
+text:text
+
+});
+
+
+localStorage.setItem(
+timelineKey(),
+JSON.stringify(timeline)
+);
+
+
+document.getElementById("timelineText").value="";
+
+loadTimeline();
+
+}
+
+
+function loadCase(){
+
+const data=
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+
+if(!data.caseNumber){
+
+return;
+
+}
+
+
+document.getElementById("caseNumber").value=
+data.caseNumber || "";
+
+document.getElementById("caseDate").value=
+data.caseDate || "";
+
+document.getElementById("financeCompany").value=
+data.financeCompany || "";
+
+document.getElementById("customerName").value=
+data.customerName || "";
+
+document.getElementById("caseType").value=
+data.caseType || "Loan Default";
+
+document.getElementById("caseStatus").value=
+data.caseStatus || "Open";
+
+document.getElementById("description").value=
+data.description || "";
+
+
+showSummary();
+
+loadTimeline();
+
+}
+
+
+function showSummary(){
+
+const data=
+JSON.parse(
+localStorage.getItem(storageKey()) || "{}"
+);
+
+
+if(!data.caseNumber){
+
+document.getElementById(
+"caseSummary"
+).innerHTML="No case saved yet.";
+
+return;
+
+}
+
+
+document.getElementById(
+"caseSummary"
+).innerHTML=`
+
+<strong>Case Number:</strong>
+${data.caseNumber}
+<br>
+
+<strong>Date:</strong>
+${data.caseDate || "Not specified"}
+<br>
+
+<strong>Finance Company:</strong>
+${data.financeCompany || "Not specified"}
+<br>
+
+<strong>Customer:</strong>
+${data.customerName || "Not specified"}
+<br>
+
+<strong>Type:</strong>
+${data.caseType}
+<br>
+
+<strong>Status:</strong>
+${data.caseStatus}
+<br>
+
+<strong>Description:</strong>
+${data.description || "No description"}
+
+`;
+
+}
+
+
+function loadTimeline(){
+
+const timeline=
+JSON.parse(
+localStorage.getItem(timelineKey()) || "[]"
+);
+
+
+const box=
+document.getElementById("timeline");
+
+
+if(timeline.length===0){
+
+box.innerHTML=
+"<p>No timeline activity yet.</p>";
+
+return;
+
+}
+
+
+box.innerHTML="";
+
+
+timeline.forEach(item=>{
+
+const div=
+document.createElement("div");
+
+div.className="timeline-item";
+
+div.innerHTML=`
+
+<strong>${item.date}</strong>
+<br>
+${item.text}
+
+`;
+
+box.appendChild(div);
+
+});
+
+}
+
+</script>
+
+</body>
+</html>
