@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Vehicle Raksha - Dashboard</title>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  padding:22px 18px;
+}
+
+header h1{
+  margin:0;
+  font-size:26px;
+}
+
+header p{
+  margin:6px 0 0;
+  opacity:.9;
+}
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:18px;
+}
+
+.vehicle-card{
+  background:white;
+  padding:18px;
+  border-radius:14px;
+  margin-bottom:20px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.vehicle-number{
+  font-size:22px;
+  font-weight:bold;
+  color:#0b3d91;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:14px;
+}
+
+.menu{
+  background:white;
+  border:0;
+  border-radius:14px;
+  padding:20px 10px;
+  min-height:115px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+  cursor:pointer;
+}
+
+.menu:active{
+  transform:scale(.97);
+}
+
+.icon{
+  font-size:30px;
+  display:block;
+  margin-bottom:8px;
+}
+
+.title{
+  font-weight:bold;
+  font-size:15px;
+}
+
+.subtitle{
+  font-size:12px;
+  color:#666;
+  margin-top:5px;
+}
+
+.section-title{
+  margin:20px 0 12px;
+}
+
+.status{
+  padding:12px;
+  background:#e8f5e9;
+  color:#2e7d32;
+  border-radius:9px;
+  font-weight:bold;
+  margin-top:12px;
+}
+
+footer{
+  text-align:center;
+  padding:25px;
+  color:#777;
+  font-size:13px;
+}
+
+@media(max-width:400px){
+
+.grid{
+  grid-template-columns:1fr 1fr;
+}
+
+.menu{
+  padding:15px 8px;
+}
+
+.icon{
+  font-size:26px;
+}
+
+}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<h1>🚗 Vehicle Raksha</h1>
+
+<p>All-in-one Vehicle Safety & Management</p>
+
+</header>
+
+
+<div class="container">
+
+
+<div class="vehicle-card">
+
+<div class="vehicle-number">
+RJ14AB1234
+</div>
+
+<p>
+MG Hector • Petrol
+</p>
+
+<div class="status">
+🟢 Vehicle Active
+</div>
+
+</div>
+
+
+<h2 class="section-title">
+Vehicle Management
+</h2>
+
+
+<div class="grid">
+
+
+<button class="menu"
+onclick="openPage('documents.html')">
+
+<span class="icon">📄</span>
+
+<div class="title">
+Documents
+</div>
+
+<div class="subtitle">
+RC • Insurance • PUC
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="openPage('document-details.html')">
+
+<span class="icon">📅</span>
+
+<div class="title">
+Expiry & Reminders
+</div>
+
+<div class="subtitle">
+Document validity
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="openPage('emi-settlement.html')">
+
+<span class="icon">💰</span>
+
+<div class="title">
+EMI & Settlement
+</div>
+
+<div class="subtitle">
+Loan & payments
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="openPage('case-management.html')">
+
+<span class="icon">🛡️</span>
+
+<div class="title">
+Case Management
+</div>
+
+<div class="subtitle">
+Cases & timeline
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="addVehicle()">
+
+<span class="icon">🚘</span>
+
+<div class="title">
+Add Vehicle
+</div>
+
+<div class="subtitle">
+Register vehicle
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="support()">
+
+<span class="icon">📞</span>
+
+<div class="title">
+Help & Support
+</div>
+
+<div class="subtitle">
+Get assistance
+</div>
+
+</button>
+
+
+</div>
+
+
+<h2 class="section-title">
+Quick Actions
+</h2>
+
+
+<div class="grid">
+
+
+<button class="menu"
+onclick="openPage('documents.html')">
+
+<span class="icon">📷</span>
+
+<div class="title">
+Upload Document
+</div>
+
+<div class="subtitle">
+Photo / PDF
+</div>
+
+</button>
+
+
+<button class="menu"
+onclick="openPage('emi-settlement.html')">
+
+<span class="icon">🧮</span>
+
+<div class="title">
+Calculate EMI
+</div>
+
+<div class="subtitle">
+Instant calculation
+</div>
+
+</button>
+
+
+</div>
+
+
+<footer>
+
+Vehicle Raksha<br>
+Vehicle Safety & Management System
+
+</footer>
+
+</div>
+
+
+<script>
+
+function openPage(page){
+
+window.location.href=page;
+
+}
+
+
+function addVehicle(){
+
+alert(
+"Add Vehicle module is available.\
+nUse the Vehicle Registration screen to add a vehicle."
+);
+
+}
+
+
+function support(){
+
+alert(
+"Vehicle Raksha Support\
+nSupport module will be connected in the next version."
+);
+
+}
+
+</script>
+
+
+</body>
+</html>
