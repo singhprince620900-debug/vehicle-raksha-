@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vehicle Raksha - Document Details</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  background:#f4f6f8;
+  color:#222;
+}
+
+header{
+  background:#0b3d91;
+  color:white;
+  text-align:center;
+  padding:20px;
+}
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  margin-bottom:18px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+h2{
+  margin-top:0;
+}
+
+input{
+  width:100%;
+  padding:13px;
+  margin:8px 0 14px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+button{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:8px;
+  background:#0b3d91;
+  color:white;
+  font-size:16px;
+  margin-top:8px;
+}
+
+.status{
+  margin-top:15px;
+  padding:12px;
+  border-radius:8px;
+  font-weight:bold;
+}
+
+.valid{
+  background:#e8f5e9;
+  color:#2e7d32;
+}
+
+.warning{
+  background:#fff8e1;
+  color:#f57f17;
+}
+
+.expired{
+  background:#ffebee;
+  color:#c62828;
+}
+
+.back{
+  background:#555;
+  margin-bottom:18px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>📄 Vehicle Raksha</h1>
+  <p>Document Details & Expiry Reminder</p>
+</header>
+
+<div class="container">
+
+<button class="back" onclick="history.back()">← Back</button>
+
+<!-- RC -->
+<div class="card">
+  <h2>🚘 RC Details</h2>
+
+  <label>RC Number</label>
+  <input id="rcNumber" placeholder="Example: RJ14AB1234">
+
+  <label>Expiry Date</label>
+  <input id="rcExpiry" type="date">
+
+  <button onclick="checkExpiry('RC','rcExpiry','rcStatus')">
+    Check RC Status
+  </button>
+
+  <div id="rcStatus"></div>
+</div>
+
+
+<!-- Insurance -->
+<div class="card">
+  <h2>🛡️ Insurance Details</h2>
+
+  <label>Policy Number</label>
+  <input id="insuranceNumber" placeholder="Enter policy number">
+
+  <label>Expiry Date</label>
+  <input id="insuranceExpiry" type="date">
+
+  <button onclick="checkExpiry('Insurance','insuranceExpiry','insuranceStatus')">
+    Check Insurance Status
+  </button>
+
+  <div id="insuranceStatus"></div>
+</div>
+
+
+<!-- PUC -->
+<div class="card">
+  <h2>🌱 PUC Details</h2>
+
+  <label>PUC Certificate Number</label>
+  <input id="pucNumber" placeholder="Enter PUC number">
+
+  <label>Expiry Date</label>
+  <input id="pucExpiry" type="date">
+
+  <button onclick="checkExpiry('PUC','pucExpiry','pucStatus')">
+    Check PUC Status
+  </button>
+
+  <div id="pucStatus"></div>
+</div>
+
+</div>
+
+<script>
+
+function checkExpiry(type,dateId,statusId){
+
+  const dateValue=document.getElementById(dateId).value;
+  const status=document.getElementById(statusId);
+
+  if(!dateValue){
+    alert("Please select an expiry date.");
+    return;
+  }
+
+  const today=new Date();
+  today.setHours(0,0,0,0);
+
+  const expiry=new Date(dateValue);
+  expiry.setHours(0,0,0,0);
+
+  const difference=expiry-today;
+  const days=Math.ceil(difference/(1000*60*60*24));
+
+  if(days<0){
+
+    status.className="status expired";
+    status.innerHTML="🔴 "+type+" EXPIRED";
+
+  }else if(days<=7){
+
+    status.className="status expired";
+    status.innerHTML="🔴 "+type+
+      " expires in "+days+" day(s).";
+
+  }else if(days<=30){
+
+    status.className="status warning";
+    status.innerHTML="🟠 "+type+
+      " expires in "+days+" day(s).";
+
+  }else{
+
+    status.className="status valid";
+    status.innerHTML="🟢 "+type+
+      " is valid for "+days+" more day(s).";
+  }
+}
+
+</script>
+
+</body>
+</html>
